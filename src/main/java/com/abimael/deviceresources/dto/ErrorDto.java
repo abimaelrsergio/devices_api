@@ -9,10 +9,10 @@ import java.time.*;
 @Data
 @AllArgsConstructor
 @Schema(
-        name = "ErrorResponse",
+        name = "Error",
         description = "Error response comes here"
 )
-public class ErrorResponseDto {
+public class ErrorDto {
 
     @Schema(
             description = "API path invoked by client"

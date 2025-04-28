@@ -5,9 +5,11 @@ import java.util.List;
 
 public interface IDeviceService {
 
-    void createDevice(DeviceDto deviceDto);
+    DeviceDto createDevice(DeviceDto deviceDto);
 
     List<DeviceDto> fetchDevices(String brand, String state);
 
     DeviceDto fetchDeviceById(Long id);
+
+    void deleteById(Long id);
 }

@@ -1,7 +1,6 @@
 package com.abimael.deviceresources.controller;
 
 import com.abimael.deviceresources.dto.DeviceDto;
-import com.abimael.deviceresources.dto.ResponseDto;
 import com.abimael.deviceresources.util.State;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -18,6 +17,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DeviceControllerRestAssuredTest {
@@ -190,5 +190,120 @@ public class DeviceControllerRestAssuredTest {
         for (DeviceDto device : devices) {
             assertEquals(State.IN_USE, device.getState(), "Device state should be IN_USE");
         }
+    }
+
+    /**
+     * Tests the GET endpoint for fetching a device by its ID.
+     */
+    @Test
+    @DisplayName("GET /api/fetch/{id} - should return a Devices filtered by id")
+    void testFetchById() {
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("Test Device");
+        deviceDto.setBrand("Lenovo");
+        deviceDto.setState(State.IN_USE);
+
+        String location =
+                given()
+                    .contentType(ContentType.JSON)
+                    .body(deviceDto)
+                .when()
+                    .post("/api/create")
+                .then()
+                    .statusCode(201)
+                        .extract()
+                        .header("Location");
+
+        String[] parts = location.split("/");
+        String id = parts[parts.length - 1];
+
+        DeviceDto device =
+                given()
+                        .contentType(ContentType.JSON)
+                .when()
+                        .get("/api/fetch/{id}", id)
+                .then()
+                        .statusCode(200)
+                        .extract()
+                        .as(DeviceDto.class);
+        assertEquals("Lenovo", device.getBrand(), "Device brand should be Lenovo");
+        assertEquals(State.IN_USE, device.getState(), "Device state should be IN_USE");
+    }
+
+    /**
+     * Test the DELETE endpoint for deleting a device by its ID.
+     */
+    @Test
+    @DisplayName("DELETE /api/delete/{id} - should delete a Devices by id")
+    void testDeleteById() {
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("Test Device");
+        deviceDto.setBrand("Iphone");
+        deviceDto.setState(State.INACTIVE);
+
+        String location =
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(deviceDto)
+                .when()
+                        .post("/api/create")
+                .then()
+                        .statusCode(201)
+                        .extract()
+                        .header("Location");
+
+        String[] parts = location.split("/");
+        String id = parts[parts.length - 1];
+
+        given()
+            .contentType(ContentType.JSON)
+        .when()
+            .delete("/api/delete/{id}", id)
+        .then()
+            .statusCode(204);
+
+        given()
+            .contentType(ContentType.JSON)
+        .when()
+             .get("/api/fetch/{id}", id)
+        .then()
+            .statusCode(404);
+    }
+
+    @Test
+    @DisplayName("DELETE /api/delete/{id} - should fail to delete a Devices by id if the state is IN_USE")
+    void testDeleteByIdWhenInUse() {
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("Test Device");
+        deviceDto.setBrand("Iphone");
+        deviceDto.setState(State.IN_USE);
+
+        String location =
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(deviceDto)
+                        .when()
+                        .post("/api/create")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .header("Location");
+
+        String[] parts = location.split("/");
+        String id = parts[parts.length - 1];
+
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .delete("/api/delete/{id}", id)
+                .then()
+                .statusCode(204);
+
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/api/fetch/{id}", id)
+                .then()
+                .statusCode(404);
     }
 }

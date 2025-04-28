@@ -10,21 +10,21 @@ import org.springframework.data.jpa.repository.config.*;
 @EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 @OpenAPIDefinition(
 		info = @Info(
-				title = "Device management microservice REST API Documentation",
+				title = "Device management REST API Documentation",
 				description = "A REST API capable of persisting and managing device resources",
 				version = "v1",
 				contact = @Contact(
-						name = "Abimael R Sergio",
+						name = "Abimael Rodrigues Sergio",
 						email = "abimaelr.sergio@gmail.com",
 						url = "https://www.linkedin.com/in/abimaelsergio"
 				),
 				license = @License(
 						name = "Apache 2.0",
-						url = "https://www.linkedin.com/in/abimaelsergio/"
+						url = "https://www.apache.org/licenses/LICENSE-2.0"
 				)
 		),
 		externalDocs = @ExternalDocumentation(
-				description =  "Device management microservice REST API Documentation",
+				description =  "Device management REST API Documentation",
 				url = "http://localhost:8080/swagger-ui/index.html"
 		)
 )

@@ -1,6 +1,7 @@
 package com.abimael.deviceresources.dto;
 
 import com.abimael.deviceresources.util.State;
+import com.fasterxml.jackson.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -20,8 +21,10 @@ import lombok.Data;
 public class DeviceDto {
 
     @Schema(
-            description = "Device ID"
+            description = "Device ID",
+            accessMode = Schema.AccessMode.READ_ONLY
     )
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @Schema(

@@ -6,6 +6,7 @@ import com.abimael.deviceresources.exception.*;
 import com.abimael.deviceresources.mapper.DeviceMapper;
 import com.abimael.deviceresources.repository.DeviceRepository;
 import com.abimael.deviceresources.service.IDeviceService;
+import com.abimael.deviceresources.util.*;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -27,9 +28,10 @@ public class DeviceServiceImpl implements IDeviceService {
      * @param deviceDto device information
      */
     @Override
-    public void createDevice(DeviceDto deviceDto) {
+    public DeviceDto createDevice(DeviceDto deviceDto) {
         Device device = DeviceMapper.mapToDevice(deviceDto, new Device());
         deviceRepository.save(device);
+        return DeviceMapper.mapToDeviceDto(device, new DeviceDto());
     }
 
     /**
@@ -61,6 +63,24 @@ public class DeviceServiceImpl implements IDeviceService {
                 () -> new ResourceNotFoundException("Device", "id", id)
         );
         return DeviceMapper.mapToDeviceDto(device, new DeviceDto());
+    }
+
+    /**
+     * This method will check if the device is in use. If it is, a
+     * {@link DeviceInUseException} will be thrown. If it is not, the device will
+     * be deleted.
+     *
+     * @param id the ID of the device to delete
+     * @return true if the device was deleted, false otherwise
+     * @throws DeviceInUseException if the device is in use
+     */
+    @Override
+    public void deleteById(Long id) {
+        DeviceDto deviceDto = fetchDeviceById(id);
+        if (deviceDto.getState() == State.IN_USE) {
+            throw new DeviceInUseException("Device", "id", id);
+        }
+        deviceRepository.deleteById(id);
     }
 
     private List<Device> findByFiltersBrandAndState(String brand, String state) {
