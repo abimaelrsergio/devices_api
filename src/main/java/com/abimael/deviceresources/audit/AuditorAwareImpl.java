@@ -5,8 +5,8 @@ import org.springframework.stereotype.*;
 
 import java.util.*;
 
-@Component("auditAwareImpl")
-public class AuditAwareImpl implements AuditorAware<String> {
+@Component("auditorAwareImpl")
+public class AuditorAwareImpl implements AuditorAware<String> {
 
     /**
      * Returns the current auditor, which is the microservice that is performing the action.

@@ -1,13 +1,13 @@
 package com.abimael.deviceresources.service;
 
-import com.abimael.deviceresources.dto.*;
+import com.abimael.deviceresources.dto.DeviceDto;
+import java.util.List;
 
 public interface IDeviceService {
 
-    /**
-     * Create a new device using the given information.
-     *
-     * @param deviceDto device information
-     */
     void createDevice(DeviceDto deviceDto);
+
+    List<DeviceDto> fetchDevices(String brand, String state);
+
+    DeviceDto fetchDeviceById(Long id);
 }

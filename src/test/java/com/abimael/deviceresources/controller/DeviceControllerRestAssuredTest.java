@@ -1,15 +1,23 @@
 package com.abimael.deviceresources.controller;
 
-import com.abimael.deviceresources.dto.*;
-import com.abimael.deviceresources.util.*;
-import io.restassured.*;
-import io.restassured.http.*;
-import org.junit.jupiter.api.*;
-import org.springframework.boot.test.context.*;
-import org.springframework.boot.test.web.server.*;
+import com.abimael.deviceresources.dto.DeviceDto;
+import com.abimael.deviceresources.dto.ResponseDto;
+import com.abimael.deviceresources.util.State;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DeviceControllerRestAssuredTest {
@@ -17,11 +25,18 @@ public class DeviceControllerRestAssuredTest {
     @LocalServerPort
     private int port;
 
+    /**
+     * Set up the test environment by setting the port used by Rest Assured to
+     * the value of the {@code @LocalServerPort} annotated field {@code port}.
+     */
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
     }
 
+    /**
+     * Test the POST endpoint for creating a device.
+     */
     @Test
     @DisplayName("POST /api/create - should create device and return valid ResponseDto")
     void testCreateDevice() {
@@ -34,12 +49,146 @@ public class DeviceControllerRestAssuredTest {
         given()
                 .contentType(ContentType.JSON)
                 .body(device)
-                .when()
+        .when()
                 .post("/api/create")
-                .then()
+        .then()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
                 .body("code", notNullValue())
                 .body("message", notNullValue());
+    }
+
+    /**
+     * Test the POST endpoint for creating a device, but without providing a name.
+     */
+    @Test
+    @DisplayName("POST /api/create - should fail when name is missing")
+    void testCreateDeviceWithoutName() {
+        DeviceDto device = new DeviceDto();
+        device.setBrand("Test Brand");
+        device.setState(State.AVAILABLE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(device)
+        .when()
+                .post("/api/create")
+        .then()
+                .statusCode(400);
+    }
+
+    /**
+     * Tests the GET endpoint for fetching all devices.
+     */
+    @Test
+    @DisplayName("GET /api/fetch - should return a list of Devices")
+    void testFetchAll() {
+
+        // Create DeviceDto instance
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("Test Device");
+        deviceDto.setBrand("Test Brand");
+        deviceDto.setState(State.AVAILABLE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(deviceDto)
+                .when()
+                .post("/api/create")
+                .then()
+                .statusCode(201);
+
+        List<DeviceDto> devices =
+                given()
+                    .contentType(ContentType.JSON)
+                .when()
+                    .get("/api/fetch")
+                .then()
+                    .statusCode(200)
+                        .extract()
+                        .body()
+                        .jsonPath()
+                        .getList(".", DeviceDto.class);
+        assertNotNull(devices, "Devices list should not be null");
+        assertFalse(devices.isEmpty(), "Devices list should have one or more elements");
+        for (DeviceDto device : devices) {
+            assertNotNull(device.getName(), "Device name should not be null");
+            assertNotNull(device.getBrand(), "Device brand should not be null");
+            assertNotNull(device.getState(), "Device state should not be null");
+        }
+    }
+
+    /**
+     * Tests the GET endpoint for fetching all devices filtered by brand.
+     */
+    @Test
+    @DisplayName("GET /api/fetch?brand={brand} - should return a list of Devices filtered by brand")
+    void testFetchBrand() {
+
+        // Create DeviceDto instance
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("Test Device");
+        deviceDto.setBrand("Apple");
+        deviceDto.setState(State.AVAILABLE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(deviceDto)
+                .when()
+                .post("/api/create")
+                .then()
+                .statusCode(201);
+
+        List<DeviceDto> devices =
+                given()
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .get("/api/fetch?brand=Apple")
+                        .then()
+                        .statusCode(200)
+                        .extract()
+                        .body()
+                        .jsonPath()
+                        .getList(".", DeviceDto.class);
+        for (DeviceDto device : devices) {
+            assertEquals("Apple", device.getBrand(), "Device brand should be Apple");
+        }
+    }
+
+    /**
+     * Tests the GET endpoint for fetching all devices filtered by brand.
+     */
+    @Test
+    @DisplayName("GET /api/fetch?state={state} - should return a list of Devices filtered by state")
+    void testFetchState() {
+
+        // Create DeviceDto instance
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("Test Device");
+        deviceDto.setBrand("Samsung");
+        deviceDto.setState(State.IN_USE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(deviceDto)
+                .when()
+                .post("/api/create")
+                .then()
+                .statusCode(201);
+
+        List<DeviceDto> devices =
+                given()
+                        .contentType(ContentType.JSON)
+                        .when()
+                        .get("/api/fetch?state=IN_USE")
+                        .then()
+                        .statusCode(200)
+                        .extract()
+                        .body()
+                        .jsonPath()
+                        .getList(".", DeviceDto.class);
+        for (DeviceDto device : devices) {
+            assertEquals(State.IN_USE, device.getState(), "Device state should be IN_USE");
+        }
     }
 }

@@ -16,6 +16,7 @@ public class DeviceMapper {
      * @return the populated device data transfer object
      */
     public static DeviceDto mapToDeviceDto(Device device, DeviceDto deviceDto) {
+        deviceDto.setId(device.getId());
         deviceDto.setName(device.getName());
         deviceDto.setBrand(device.getBrand());
         deviceDto.setState(device.getState());

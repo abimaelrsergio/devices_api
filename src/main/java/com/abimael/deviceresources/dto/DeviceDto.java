@@ -20,6 +20,11 @@ import lombok.Data;
 public class DeviceDto {
 
     @Schema(
+            description = "Device ID"
+    )
+    private Long id;
+
+    @Schema(
             description = "Device name"
     )
     @NotEmpty(message = "Device name cannot be empty")
