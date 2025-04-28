@@ -1,5 +1,6 @@
 package com.abimael.deviceresources.controller;
 
+import com.abimael.deviceresources.constants.*;
 import com.abimael.deviceresources.dto.*;
 import com.abimael.deviceresources.service.*;
 import io.swagger.v3.oas.annotations.tags.*;
@@ -32,7 +33,7 @@ public class DeviceController {
         iDeviceService.createDevice(deviceDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto("200", "Device created successfully"));
+                .body(new ResponseDto(DevicesConstants.STATUS_201, DevicesConstants.MESSAGE_201));
     }
 
 }

@@ -1,5 +1,7 @@
 package com.abimael.deviceresources.controller;
 
+import com.abimael.deviceresources.dto.*;
+import com.abimael.deviceresources.util.*;
 import io.restassured.*;
 import io.restassured.http.*;
 import org.junit.jupiter.api.*;
@@ -23,12 +25,19 @@ public class DeviceControllerRestAssuredTest {
     @Test
     @DisplayName("POST /api/create - should create device and return valid ResponseDto")
     void testCreateDevice() {
+        // Create DeviceDto instance
+        DeviceDto device = new DeviceDto();
+        device.setName("Test Device");
+        device.setBrand("Test Brand");
+        device.setState(State.AVAILABLE);
+
         given()
                 .contentType(ContentType.JSON)
+                .body(device)
                 .when()
                 .post("/api/create")
                 .then()
-                .statusCode(200)
+                .statusCode(201)
                 .contentType(ContentType.JSON)
                 .body("code", notNullValue())
                 .body("message", notNullValue());
