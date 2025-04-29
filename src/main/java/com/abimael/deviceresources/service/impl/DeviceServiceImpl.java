@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+
 @Service
 @AllArgsConstructor
 public class DeviceServiceImpl implements IDeviceService {
@@ -59,6 +62,7 @@ public class DeviceServiceImpl implements IDeviceService {
      */
     @Override
     public DeviceDto fetchDeviceById(Long id) {
+        checkArgument(isNotEmpty(id), "Id cannot be null");
         Device device = deviceRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Device", "id", id)
         );
@@ -75,9 +79,7 @@ public class DeviceServiceImpl implements IDeviceService {
     @Override
     public void deleteById(Long id) {
         DeviceDto deviceDto = fetchDeviceById(id);
-        if (deviceDto.getState() == State.IN_USE) {
-            throw new DeviceInUseException("Device", "id", id);
-        }
+        checkNotInUse(deviceDto.getState(), id);
         deviceRepository.deleteById(id);
     }
 
@@ -91,16 +93,16 @@ public class DeviceServiceImpl implements IDeviceService {
      */
     @Override
     public DeviceDto updateDevice(UpdateDeviceDto deviceDto) {
+        checkArgument(isNotEmpty(deviceDto.getId()), "Id cannot be null");
         Device device = deviceRepository.findById(deviceDto.getId()).orElseThrow(
                 () -> new ResourceNotFoundException("Device", "id", deviceDto.getId())
         );
-        if (device.getState() == State.IN_USE) {
-            throw new DeviceInUseException("Device", "id", deviceDto.getId());
-        }
         if (StringUtils.isNoneBlank(deviceDto.getName()) && !device.getName().equals(deviceDto.getName())) {
+            checkNotInUse(device.getState(), deviceDto.getId());
             device.setName(deviceDto.getName());
         }
         if (StringUtils.isNoneBlank(deviceDto.getBrand()) && !device.getBrand().equals(deviceDto.getBrand())) {
+            checkNotInUse(device.getState(), deviceDto.getId());
             device.setBrand(deviceDto.getBrand());
         }
         if (deviceDto.getState() != null && !device.getState().equals(deviceDto.getState())) {
@@ -108,6 +110,13 @@ public class DeviceServiceImpl implements IDeviceService {
         }
         deviceRepository.save(device);
         return DeviceMapper.mapToDeviceDto(device, new DeviceDto());
+    }
+
+     // Checks if the given device is in use and throws a DeviceInUseException if that's the case.
+    private static void checkNotInUse(State device, Long deviceDto) {
+        if (device == State.IN_USE) {
+            throw new DeviceInUseException("Device", "id", deviceDto);
+        }
     }
 
     // Retrieves a list of devices filtered by the specified brand and state.

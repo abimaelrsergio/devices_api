@@ -38,7 +38,7 @@ public class DeviceControllerRestAssuredTest {
      * Test the POST endpoint for creating a device.
      */
     @Test
-    @DisplayName("POST /api/create - should create device and return valid ResponseDto")
+    @DisplayName("POST /api/create - Create a new device")
     void testCreateDevice() {
         // Create DeviceDto instance
         DeviceDto device = new DeviceDto();
@@ -81,7 +81,7 @@ public class DeviceControllerRestAssuredTest {
      * Tests the GET endpoint for fetching all devices.
      */
     @Test
-    @DisplayName("GET /api/fetch - should return a list of Devices")
+    @DisplayName("GET /api/fetch - Fetch all devices")
     void testFetchAll() {
 
         // Create DeviceDto instance
@@ -122,7 +122,7 @@ public class DeviceControllerRestAssuredTest {
      * Tests the GET endpoint for fetching all devices filtered by brand.
      */
     @Test
-    @DisplayName("GET /api/fetch?brand={brand} - should return a list of Devices filtered by brand")
+    @DisplayName("GET /api/fetch?brand={brand} - Fetch devices by brand")
     void testFetchBrand() {
 
         // Create DeviceDto instance
@@ -159,7 +159,7 @@ public class DeviceControllerRestAssuredTest {
      * Tests the GET endpoint for fetching all devices filtered by brand.
      */
     @Test
-    @DisplayName("GET /api/fetch?state={state} - should return a list of Devices filtered by state")
+    @DisplayName("GET /api/fetch?state={state} - Fetch devices by state")
     void testFetchState() {
 
         // Create DeviceDto instance
@@ -196,7 +196,7 @@ public class DeviceControllerRestAssuredTest {
      * Tests the GET endpoint for fetching a device by its ID.
      */
     @Test
-    @DisplayName("GET /api/fetch/{id} - should return a Devices filtered by id")
+    @DisplayName("GET /api/fetch/{id} - Fetch a single device")
     void testFetchById() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -234,7 +234,7 @@ public class DeviceControllerRestAssuredTest {
      * Test the DELETE endpoint for deleting a device by its ID.
      */
     @Test
-    @DisplayName("DELETE /api/delete/{id} - should delete a Devices by id")
+    @DisplayName("DELETE /api/delete/{id} - Delete a single device")
     void testDeleteById() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -308,7 +308,7 @@ public class DeviceControllerRestAssuredTest {
      * the update operation returns a status code 200 indicating success.
      */
     @Test
-    @DisplayName("PUT /api/update - should update a Devices by id")
+    @DisplayName("PUT /api/update - Partially update an existing device")
     void testUpdateDevice() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -339,6 +339,47 @@ public class DeviceControllerRestAssuredTest {
         .when()
                 .put("/api/update")
         .then()
+                .statusCode(200);
+    }
+
+    /**
+     * This test creates a new device, and fully update this device, and verifies
+     * the update operation returns a status code 200 indicating success.
+     */
+    @Test
+    @DisplayName("PUT /api/update - Fully update an existing device")
+    void testFullyUpdateDevice() {
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("DEVICE TO BE FULLY UPDATED");
+        deviceDto.setBrand("BRAND TO BE FULLY UPDATED");
+        deviceDto.setState(State.AVAILABLE);
+
+        String location =
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(deviceDto)
+                        .when()
+                        .post("/api/create")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .header("Location");
+
+        String[] parts = location.split("/");
+        String id = parts[parts.length - 1];
+
+        UpdateDeviceDto updateDeviceDto = new UpdateDeviceDto();
+        updateDeviceDto.setId(Long.parseLong(id));
+        deviceDto.setName("UPDATED Device");
+        deviceDto.setBrand("UPDATEDIphone");
+        deviceDto.setState(State.IN_USE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(updateDeviceDto)
+                .when()
+                .put("/api/update")
+                .then()
                 .statusCode(200);
     }
 }

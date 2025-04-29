@@ -34,6 +34,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Handle all IllegalArgumentExceptions and return a JSON response containing information about the error.
+     * @param exception the exception to be handled
+     * @param webRequest the current web request
+     * @return a ResponseEntity containing the error response
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorDto> handleIllegalArgumentException(IllegalArgumentException exception, WebRequest webRequest) {
+        ErrorDto errorDto = new ErrorDto(
+                webRequest.getDescription(false),
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Handle ResourceNotFoundException and return a JSON response containing information about the error.
      * @param exception the exception to be handled
      * @param webRequest the current web request
