@@ -1,7 +1,10 @@
 package com.abimael.deviceresources.controller;
 
 import com.abimael.deviceresources.constants.DevicesConstants;
-import com.abimael.deviceresources.dto.*;
+import com.abimael.deviceresources.dto.ErrorDto;
+import com.abimael.deviceresources.dto.ResponseDto;
+import com.abimael.deviceresources.dto.DeviceDto;
+import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.exception.ResourceNotFoundException;
 import com.abimael.deviceresources.exception.DeviceInUseException;
 import com.abimael.deviceresources.service.IDeviceService;
@@ -14,9 +17,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
