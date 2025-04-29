@@ -1,9 +1,9 @@
 package com.abimael.deviceresources.audit;
 
-import org.springframework.data.domain.*;
-import org.springframework.stereotype.*;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Optional;
 
 @Component("auditorAwareImpl")
 public class AuditorAwareImpl implements AuditorAware<String> {
