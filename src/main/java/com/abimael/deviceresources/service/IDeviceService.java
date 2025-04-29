@@ -1,6 +1,7 @@
 package com.abimael.deviceresources.service;
 
-import com.abimael.deviceresources.dto.DeviceDto;
+import com.abimael.deviceresources.dto.*;
+
 import java.util.List;
 
 public interface IDeviceService {
@@ -12,4 +13,6 @@ public interface IDeviceService {
     DeviceDto fetchDeviceById(Long id);
 
     void deleteById(Long id);
+
+    DeviceDto updateDevice(UpdateDeviceDto deviceDto);
 }

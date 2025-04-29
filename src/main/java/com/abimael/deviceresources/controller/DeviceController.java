@@ -1,22 +1,26 @@
 package com.abimael.deviceresources.controller;
 
-import com.abimael.deviceresources.constants.*;
+import com.abimael.deviceresources.constants.DevicesConstants;
 import com.abimael.deviceresources.dto.*;
 import com.abimael.deviceresources.exception.ResourceNotFoundException;
-import com.abimael.deviceresources.service.*;
-import io.swagger.v3.oas.annotations.*;
-import io.swagger.v3.oas.annotations.media.*;
-import io.swagger.v3.oas.annotations.responses.*;
-import io.swagger.v3.oas.annotations.tags.*;
-import jakarta.validation.*;
-import org.slf4j.*;
+import com.abimael.deviceresources.exception.DeviceInUseException;
+import com.abimael.deviceresources.service.IDeviceService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-import org.springframework.validation.annotation.*;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.*;
-import java.util.*;
+import java.net.URI;
+import java.util.List;
 
 @Tag(
         name = "CRUD REST APIs for device management",
@@ -102,6 +106,7 @@ public class DeviceController {
     @GetMapping("/fetch")
     public ResponseEntity<List<DeviceDto>> fetchDevices(@RequestParam(required = false) String brand,
                                                         @RequestParam(required = false) String state){
+        logger.debug("DeviceController.fetchDevices: {}, {}", brand, state);
         List<DeviceDto> devices = iDeviceService.fetchDevices(brand, state);
         return ResponseEntity.status(HttpStatus.OK).body(devices);
     }
@@ -134,10 +139,20 @@ public class DeviceController {
     )
     @GetMapping("/fetch/{id}")
     public ResponseEntity<DeviceDto> fetchDeviceById(@PathVariable(name = "id") Long id){
+        logger.debug("DeviceController.fetchDeviceById: {}", id);
         DeviceDto device = iDeviceService.fetchDeviceById(id);
         return ResponseEntity.status(HttpStatus.OK).body(device);
     }
 
+    /**
+     * Deletes a device by its ID using the REST API.
+     *
+     * @param id the ID of the device to be deleted
+     * @return a ResponseEntity containing the HTTP status code and a ResponseDto
+     *         with the status code and message
+     * @throws DeviceInUseException if the device is currently in use
+     * @throws ResourceNotFoundException if the device is not found
+     */
     @Operation(
             summary = "Delete device by Id",
             description = "REST API to delete a device based on its id"
@@ -158,9 +173,41 @@ public class DeviceController {
     )
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ResponseDto> deleteById(@PathVariable(name = "id") Long id) {
+        logger.debug("DeviceController.deleteById: {}", id);
         iDeviceService.deleteById(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(new ResponseDto(DevicesConstants.STATUS_204, DevicesConstants.MESSAGE_204));
+    }
+
+    @Operation(
+            summary = "Update device",
+            description = "REST API to update a device"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "HTTP Status NO CONTENT"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorDto.class)
+                    )
+            )
+    }
+    )
+    @PutMapping("/update")
+    public ResponseEntity<ResponseDto> updateDevice(@Valid @RequestBody UpdateDeviceDto updateDeviceDto){
+        logger.debug("DeviceController.updateDevice: {}", updateDeviceDto);
+        DeviceDto deviceUpdated = iDeviceService.updateDevice(updateDeviceDto);
+
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(deviceUpdated.getId()).toUri();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.LOCATION, uri.toString())
+                .body(new ResponseDto(DevicesConstants.STATUS_200, DevicesConstants.MESSAGE_200));
     }
 }

@@ -1,6 +1,6 @@
 package com.abimael.deviceresources.controller;
 
-import com.abimael.deviceresources.dto.DeviceDto;
+import com.abimael.deviceresources.dto.*;
 import com.abimael.deviceresources.util.State;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -270,6 +270,9 @@ public class DeviceControllerRestAssuredTest {
             .statusCode(404);
     }
 
+    /**
+     * Test the DELETE endpoint for deleting a device by its ID, but if the device is in use.
+     */
     @Test
     @DisplayName("DELETE /api/delete/{id} - should fail to delete a Devices by id if the state is IN_USE")
     void testDeleteByIdWhenInUse() {
@@ -294,16 +297,48 @@ public class DeviceControllerRestAssuredTest {
 
         given()
                 .contentType(ContentType.JSON)
-                .when()
+        .when()
                 .delete("/api/delete/{id}", id)
+        .then()
+                .statusCode(403);
+    }
+
+    /**
+     * This test creates a new device, updates its state to INACTIVE, and verifies
+     * the update operation returns a status code 200 indicating success.
+     */
+    @Test
+    @DisplayName("PUT /api/update - should update a Devices by id")
+    void testUpdateDevice() {
+        DeviceDto deviceDto = new DeviceDto();
+        deviceDto.setName("Test Device");
+        deviceDto.setBrand("Iphone");
+        deviceDto.setState(State.AVAILABLE);
+
+        String location =
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(deviceDto)
+                .when()
+                        .post("/api/create")
                 .then()
-                .statusCode(204);
+                        .statusCode(201)
+                        .extract()
+                        .header("Location");
+
+        String[] parts = location.split("/");
+        String id = parts[parts.length - 1];
+
+        UpdateDeviceDto updateDeviceDto = new UpdateDeviceDto();
+        updateDeviceDto.setId(Long.parseLong(id));
+        updateDeviceDto.setState(State.INACTIVE);
 
         given()
                 .contentType(ContentType.JSON)
-                .when()
-                .get("/api/fetch/{id}", id)
-                .then()
-                .statusCode(404);
+                .body(updateDeviceDto)
+        .when()
+                .put("/api/update")
+        .then()
+                .statusCode(200);
     }
 }

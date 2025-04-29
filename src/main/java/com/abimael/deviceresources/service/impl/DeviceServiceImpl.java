@@ -1,6 +1,7 @@
 package com.abimael.deviceresources.service.impl;
 
 import com.abimael.deviceresources.dto.DeviceDto;
+import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.entity.Device;
 import com.abimael.deviceresources.exception.*;
 import com.abimael.deviceresources.mapper.DeviceMapper;
@@ -8,12 +9,11 @@ import com.abimael.deviceresources.repository.DeviceRepository;
 import com.abimael.deviceresources.service.IDeviceService;
 import com.abimael.deviceresources.util.*;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Collections;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,13 +66,11 @@ public class DeviceServiceImpl implements IDeviceService {
     }
 
     /**
-     * This method will check if the device is in use. If it is, a
-     * {@link DeviceInUseException} will be thrown. If it is not, the device will
-     * be deleted.
+     * Deletes a device by its ID using the service layer.
      *
-     * @param id the ID of the device to delete
-     * @return true if the device was deleted, false otherwise
-     * @throws DeviceInUseException if the device is in use
+     * @param id the ID of the device to be deleted
+     * @throws ResourceNotFoundException if the device is not found
+     * @throws DeviceInUseException if the device is currently in use
      */
     @Override
     public void deleteById(Long id) {
@@ -83,6 +81,36 @@ public class DeviceServiceImpl implements IDeviceService {
         deviceRepository.deleteById(id);
     }
 
+    /**
+     * Updates a device by its ID.
+     *
+     * @param deviceDto contains the updated device information
+     * @return the updated device
+     * @throws ResourceNotFoundException if the device is not found
+     * @throws DeviceInUseException if the device is currently in use
+     */
+    @Override
+    public DeviceDto updateDevice(UpdateDeviceDto deviceDto) {
+        Device device = deviceRepository.findById(deviceDto.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Device", "id", deviceDto.getId())
+        );
+        if (device.getState() == State.IN_USE) {
+            throw new DeviceInUseException("Device", "id", deviceDto.getId());
+        }
+        if (StringUtils.isNoneBlank(deviceDto.getName()) && !device.getName().equals(deviceDto.getName())) {
+            device.setName(deviceDto.getName());
+        }
+        if (StringUtils.isNoneBlank(deviceDto.getBrand()) && !device.getBrand().equals(deviceDto.getBrand())) {
+            device.setBrand(deviceDto.getBrand());
+        }
+        if (deviceDto.getState() != null && !device.getState().equals(deviceDto.getState())) {
+            device.setState(deviceDto.getState());
+        }
+        deviceRepository.save(device);
+        return DeviceMapper.mapToDeviceDto(device, new DeviceDto());
+    }
+
+    // Retrieves a list of devices filtered by the specified brand and state.
     private List<Device> findByFiltersBrandAndState(String brand, String state) {
         Specification<Device> specification = Specification.where(null);
         if (brand != null) {
