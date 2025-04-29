@@ -44,7 +44,7 @@ public class DeviceControllerTest {
      * Test the POST endpoint for creating a device.
      */
     @Test
-    @DisplayName("POST /api/create - Create a new device")
+    @DisplayName("POST /api/devices - Create a new device")
     void testCreateDevice() {
         // Create DeviceDto instance
         DeviceDto device = new DeviceDto();
@@ -56,7 +56,7 @@ public class DeviceControllerTest {
                 .contentType(ContentType.JSON)
                 .body(device)
         .when()
-                .post("/api/create")
+                .post("/api/devices")
         .then()
                 .statusCode(201)
                 .contentType(ContentType.JSON)
@@ -68,7 +68,7 @@ public class DeviceControllerTest {
      * Test the POST endpoint for creating a device, but without providing a name.
      */
     @Test
-    @DisplayName("POST /api/create - should fail when name is missing")
+    @DisplayName("POST /api/devices - should fail when name is missing")
     void testCreateDeviceWithoutName() {
         DeviceDto device = new DeviceDto();
         device.setBrand("Test Brand");
@@ -78,7 +78,7 @@ public class DeviceControllerTest {
                 .contentType(ContentType.JSON)
                 .body(device)
         .when()
-                .post("/api/create")
+                .post("/api/devices")
         .then()
                 .statusCode(400);
     }
@@ -87,7 +87,7 @@ public class DeviceControllerTest {
      * Tests the GET endpoint for fetching all devices.
      */
     @Test
-    @DisplayName("GET /api/fetch - Fetch all devices")
+    @DisplayName("GET /api/devices - Fetch all devices")
     void testFetchAll() {
 
         // Create DeviceDto instance
@@ -100,7 +100,7 @@ public class DeviceControllerTest {
                 .contentType(ContentType.JSON)
                 .body(deviceDto)
                 .when()
-                .post("/api/create")
+                .post("/api/devices")
                 .then()
                 .statusCode(201);
 
@@ -108,7 +108,7 @@ public class DeviceControllerTest {
                 given()
                     .contentType(ContentType.JSON)
                 .when()
-                    .get("/api/fetch")
+                    .get("/api/devices")
                 .then()
                     .statusCode(200)
                         .extract()
@@ -128,7 +128,7 @@ public class DeviceControllerTest {
      * Tests the GET endpoint for fetching all devices filtered by brand.
      */
     @Test
-    @DisplayName("GET /api/fetch?brand={brand} - Fetch devices by brand")
+    @DisplayName("GET /api/devices?brand={brand} - Fetch devices by brand")
     void testFetchBrand() {
 
         // Create DeviceDto instance
@@ -141,7 +141,7 @@ public class DeviceControllerTest {
                 .contentType(ContentType.JSON)
                 .body(deviceDto)
                 .when()
-                .post("/api/create")
+                .post("/api/devices")
                 .then()
                 .statusCode(201);
 
@@ -149,7 +149,7 @@ public class DeviceControllerTest {
                 given()
                         .contentType(ContentType.JSON)
                         .when()
-                        .get("/api/fetch?brand=Apple")
+                        .get("/api/devices?brand=Apple")
                         .then()
                         .statusCode(200)
                         .extract()
@@ -165,7 +165,7 @@ public class DeviceControllerTest {
      * Tests the GET endpoint for fetching all devices filtered by brand.
      */
     @Test
-    @DisplayName("GET /api/fetch?state={state} - Fetch devices by state")
+    @DisplayName("GET /api/devices?state={state} - Fetch devices by state")
     void testFetchState() {
 
         // Create DeviceDto instance
@@ -178,7 +178,7 @@ public class DeviceControllerTest {
                 .contentType(ContentType.JSON)
                 .body(deviceDto)
                 .when()
-                .post("/api/create")
+                .post("/api/devices")
                 .then()
                 .statusCode(201);
 
@@ -186,7 +186,7 @@ public class DeviceControllerTest {
                 given()
                         .contentType(ContentType.JSON)
                         .when()
-                        .get("/api/fetch?state=IN_USE")
+                        .get("/api/devices?state=IN_USE")
                         .then()
                         .statusCode(200)
                         .extract()
@@ -202,7 +202,7 @@ public class DeviceControllerTest {
      * Tests the GET endpoint for fetching a device by its ID.
      */
     @Test
-    @DisplayName("GET /api/fetch/{id} - Fetch a single device")
+    @DisplayName("GET /api/devices/{id} - Fetch a single device")
     void testFetchById() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -214,7 +214,7 @@ public class DeviceControllerTest {
                     .contentType(ContentType.JSON)
                     .body(deviceDto)
                 .when()
-                    .post("/api/create")
+                    .post("/api/devices")
                 .then()
                     .statusCode(201)
                         .extract()
@@ -227,7 +227,7 @@ public class DeviceControllerTest {
                 given()
                         .contentType(ContentType.JSON)
                 .when()
-                        .get("/api/fetch/{id}", id)
+                        .get("/api/devices/{id}", id)
                 .then()
                         .statusCode(200)
                         .extract()
@@ -240,7 +240,7 @@ public class DeviceControllerTest {
      * Test the DELETE endpoint for deleting a device by its ID.
      */
     @Test
-    @DisplayName("DELETE /api/delete/{id} - Delete a single device")
+    @DisplayName("DELETE /api/devices/{id} - Delete a single device")
     void testDeleteById() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -252,7 +252,7 @@ public class DeviceControllerTest {
                         .contentType(ContentType.JSON)
                         .body(deviceDto)
                 .when()
-                        .post("/api/create")
+                        .post("/api/devices")
                 .then()
                         .statusCode(201)
                         .extract()
@@ -264,14 +264,14 @@ public class DeviceControllerTest {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .delete("/api/delete/{id}", id)
+            .delete("/api/devices/{id}", id)
         .then()
             .statusCode(204);
 
         given()
             .contentType(ContentType.JSON)
         .when()
-             .get("/api/fetch/{id}", id)
+             .get("/api/devices/{id}", id)
         .then()
             .statusCode(404);
     }
@@ -280,7 +280,7 @@ public class DeviceControllerTest {
      * Test the DELETE endpoint for deleting a device by its ID, but if the device is in use.
      */
     @Test
-    @DisplayName("DELETE /api/delete/{id} - should fail to delete a Devices by id if the state is IN_USE")
+    @DisplayName("DELETE /api/devices/{id} - should fail to delete a Devices by id if the state is IN_USE")
     void testDeleteByIdWhenInUse() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -292,7 +292,7 @@ public class DeviceControllerTest {
                         .contentType(ContentType.JSON)
                         .body(deviceDto)
                         .when()
-                        .post("/api/create")
+                        .post("/api/devices")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -304,7 +304,7 @@ public class DeviceControllerTest {
         given()
                 .contentType(ContentType.JSON)
         .when()
-                .delete("/api/delete/{id}", id)
+                .delete("/api/devices/{id}", id)
         .then()
                 .statusCode(403);
     }
@@ -314,7 +314,7 @@ public class DeviceControllerTest {
      * the update operation returns a status code 200 indicating success.
      */
     @Test
-    @DisplayName("PUT /api/update - Partially update an existing device")
+    @DisplayName("PUT /api/devices - Partially update an existing device")
     void testUpdateDevice() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -326,7 +326,7 @@ public class DeviceControllerTest {
                         .contentType(ContentType.JSON)
                         .body(deviceDto)
                 .when()
-                        .post("/api/create")
+                        .post("/api/devices")
                 .then()
                         .statusCode(201)
                         .extract()
@@ -343,7 +343,7 @@ public class DeviceControllerTest {
                 .contentType(ContentType.JSON)
                 .body(updateDeviceDto)
         .when()
-                .put("/api/update")
+                .put("/api/devices")
         .then()
                 .statusCode(200);
     }
@@ -353,7 +353,7 @@ public class DeviceControllerTest {
      * the update operation returns a status code 200 indicating success.
      */
     @Test
-    @DisplayName("PUT /api/update - Fully update an existing device")
+    @DisplayName("PUT /api/devices - Fully update an existing device")
     void testFullyUpdateDevice() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("DEVICE TO BE FULLY UPDATED");
@@ -365,7 +365,7 @@ public class DeviceControllerTest {
                         .contentType(ContentType.JSON)
                         .body(deviceDto)
                         .when()
-                        .post("/api/create")
+                        .post("/api/devices")
                         .then()
                         .statusCode(201)
                         .extract()
@@ -384,7 +384,7 @@ public class DeviceControllerTest {
                 .contentType(ContentType.JSON)
                 .body(updateDeviceDto)
                 .when()
-                .put("/api/update")
+                .put("/api/devices")
                 .then()
                 .statusCode(200);
     }

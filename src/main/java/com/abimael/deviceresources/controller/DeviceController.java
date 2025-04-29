@@ -82,7 +82,7 @@ public class DeviceController {
             )
     }
     )
-    @PostMapping("/create")
+    @PostMapping("/devices")
     public ResponseEntity<ResponseDto> createDevice(@Valid @RequestBody DeviceDto deviceDto) {
         logger.debug("DeviceController.createDevice: {}", deviceDto);
         deviceDto = iDeviceService.createDevice(deviceDto);
@@ -121,7 +121,7 @@ public class DeviceController {
             )
     }
     )
-    @GetMapping("/fetch")
+    @GetMapping("/devices")
     public ResponseEntity<List<DeviceDto>> fetchDevices(@RequestParam(required = false) String brand,
                                                         @RequestParam(required = false) String state){
         logger.debug("DeviceController.fetchDevices: {}, {}", brand, state);
@@ -155,7 +155,7 @@ public class DeviceController {
             )
     }
     )
-    @GetMapping("/fetch/{id}")
+    @GetMapping("/devices/{id}")
     public ResponseEntity<DeviceDto> fetchDeviceById(@PathVariable(name = "id") Long id){
         logger.debug("DeviceController.fetchDeviceById: {}", id);
         DeviceDto device = iDeviceService.fetchDeviceById(id);
@@ -189,7 +189,7 @@ public class DeviceController {
             )
     }
     )
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/devices/{id}")
     public ResponseEntity<ResponseDto> deleteById(@PathVariable(name = "id") Long id) {
         logger.debug("DeviceController.deleteById: {}", id);
         iDeviceService.deleteById(id);
@@ -225,7 +225,7 @@ public class DeviceController {
             )
     }
     )
-    @PutMapping("/update")
+    @PutMapping("/devices")
     public ResponseEntity<ResponseDto> updateDevice(@Valid @RequestBody UpdateDeviceDto updateDeviceDto){
         logger.debug("DeviceController.updateDevice: {}", updateDeviceDto);
         DeviceDto deviceUpdated = iDeviceService.updateDevice(updateDeviceDto);
