@@ -1,6 +1,6 @@
 package com.abimael.deviceresources.util;
 
-import io.swagger.v3.oas.annotations.media.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Enumeration representing the possible states of a device.

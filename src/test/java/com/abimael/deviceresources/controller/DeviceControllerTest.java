@@ -1,6 +1,7 @@
 package com.abimael.deviceresources.controller;
 
-import com.abimael.deviceresources.dto.*;
+import com.abimael.deviceresources.dto.DeviceDto;
+import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.util.State;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -17,8 +18,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
+/**
+ * Integration tests for the {@link DeviceController} REST API.
+ * Uses RestAssured to validate CRUD operations on devices.
+ * Verifies correct status codes and response structures.
+ * Runs on a random port with a real Spring Boot context.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DeviceControllerTest {
 

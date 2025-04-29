@@ -1,6 +1,7 @@
 package com.abimael.deviceresources.service;
 
-import com.abimael.deviceresources.dto.*;
+import com.abimael.deviceresources.dto.DeviceDto;
+import com.abimael.deviceresources.dto.UpdateDeviceDto;
 
 import java.util.List;
 

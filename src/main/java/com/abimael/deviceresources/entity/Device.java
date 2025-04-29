@@ -1,7 +1,13 @@
 package com.abimael.deviceresources.entity;
 
 import com.abimael.deviceresources.util.State;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Column;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

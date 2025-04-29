@@ -1,10 +1,11 @@
 package com.abimael.deviceresources.dto;
 
-import io.swagger.v3.oas.annotations.media.*;
-import lombok.*;
-import org.springframework.http.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 
-import java.time.*;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
