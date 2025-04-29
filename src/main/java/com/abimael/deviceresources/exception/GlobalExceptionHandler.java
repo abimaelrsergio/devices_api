@@ -51,6 +51,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Handle all DatabaseExceptions and return a JSON response containing information about the error.
+     * @param exception the exception to be handled
+     * @param webRequest the current web request
+     * @return a ResponseEntity containing the error response
+     */
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<ErrorDto> handleDatabaseException(DatabaseException exception, WebRequest webRequest) {
+        ErrorDto errorDto = new ErrorDto(
+                webRequest.getDescription(false),
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorDto, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
      * Handle ResourceNotFoundException and return a JSON response containing information about the error.
      * @param exception the exception to be handled
      * @param webRequest the current web request

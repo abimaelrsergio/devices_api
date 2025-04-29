@@ -7,13 +7,16 @@ import com.abimael.deviceresources.exception.*;
 import com.abimael.deviceresources.mapper.DeviceMapper;
 import com.abimael.deviceresources.repository.DeviceRepository;
 import com.abimael.deviceresources.service.IDeviceService;
-import com.abimael.deviceresources.util.*;
+import com.abimael.deviceresources.util.State;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.*;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -23,7 +26,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 @AllArgsConstructor
 public class DeviceServiceImpl implements IDeviceService {
 
-    private DeviceRepository deviceRepository;
+    private final DeviceRepository deviceRepository;
 
     /**
      * Create a new device using the given information.
@@ -32,9 +35,13 @@ public class DeviceServiceImpl implements IDeviceService {
      */
     @Override
     public DeviceDto createDevice(DeviceDto deviceDto) {
-        Device device = DeviceMapper.mapToDevice(deviceDto, new Device());
-        deviceRepository.save(device);
-        return DeviceMapper.mapToDeviceDto(device, new DeviceDto());
+        Device device = DeviceMapper.mapToDevice(deviceDto);
+        try {
+            deviceRepository.save(device);
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Device");
+        }
+        return DeviceMapper.mapToDeviceDto(device);
     }
 
     /**
@@ -49,7 +56,7 @@ public class DeviceServiceImpl implements IDeviceService {
         return Optional.ofNullable(findByFiltersBrandAndState(brand, state))
                 .orElseGet(Collections::emptyList)
                 .stream()
-                .map(device -> DeviceMapper.mapToDeviceDto(device, new DeviceDto()))
+                .map(DeviceMapper::mapToDeviceDto)
                 .collect(Collectors.toList());
     }
 
@@ -66,7 +73,7 @@ public class DeviceServiceImpl implements IDeviceService {
         Device device = deviceRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Device", "id", id)
         );
-        return DeviceMapper.mapToDeviceDto(device, new DeviceDto());
+        return DeviceMapper.mapToDeviceDto(device);
     }
 
     /**
@@ -80,7 +87,11 @@ public class DeviceServiceImpl implements IDeviceService {
     public void deleteById(Long id) {
         DeviceDto deviceDto = fetchDeviceById(id);
         checkNotInUse(deviceDto.getState(), id);
-        deviceRepository.deleteById(id);
+        try {
+            deviceRepository.deleteById(id);
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Device");
+        }
     }
 
     /**
@@ -108,8 +119,12 @@ public class DeviceServiceImpl implements IDeviceService {
         if (deviceDto.getState() != null && !device.getState().equals(deviceDto.getState())) {
             device.setState(deviceDto.getState());
         }
-        deviceRepository.save(device);
-        return DeviceMapper.mapToDeviceDto(device, new DeviceDto());
+        try {
+            deviceRepository.save(device);
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Device");
+        }
+        return DeviceMapper.mapToDeviceDto(device);
     }
 
      // Checks if the given device is in use and throws a DeviceInUseException if that's the case.
@@ -122,10 +137,10 @@ public class DeviceServiceImpl implements IDeviceService {
     // Retrieves a list of devices filtered by the specified brand and state.
     private List<Device> findByFiltersBrandAndState(String brand, String state) {
         Specification<Device> specification = Specification.where(null);
-        if (brand != null) {
+        if (StringUtils.isNotBlank(brand)) {
             specification = specification.and((root, query, cb) -> cb.equal(root.get("brand"), brand));
         }
-        if (state != null) {
+        if (StringUtils.isNotBlank(state)) {
             specification = specification.and((root, query, cb) -> cb.equal(root.get("state"), state));
         }
         return deviceRepository.findAll(specification);
