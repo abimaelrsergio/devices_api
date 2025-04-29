@@ -22,6 +22,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * REST controller for managing devices through CRUD operations.
+ * Provides endpoints to create, fetch, update, and delete devices.
+ */
 @Tag(
         name = "CRUD REST APIs for device management",
         description = "CRUD REST APIs to CREATE, UPDATE, FETCH AND DELETE devices"
@@ -180,6 +184,15 @@ public class DeviceController {
                 .body(new ResponseDto(DevicesConstants.STATUS_204, DevicesConstants.MESSAGE_204));
     }
 
+    /**
+     * Updates an existing device.
+     *
+     * @param updateDeviceDto contains the updated device information
+     * @return ResponseEntity containing the HTTP status code and a ResponseDto
+     *         with the status code and message
+     * @throws ResourceNotFoundException if the device is not found
+     * @throws DeviceInUseException if the device is currently in use
+     */
     @Operation(
             summary = "Update device",
             description = "REST API to update a device"

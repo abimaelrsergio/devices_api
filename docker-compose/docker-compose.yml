@@ -1,0 +1,41 @@
+services:
+  device-db-ms:
+    image: mysql
+    container_name: device-db-ms
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    environment:
+      MYSQL_DATABASE: device_db
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - abimael-network
+
+  device-ms:
+    image: "abimaelrsergio/deviceresources:version-1"
+    container_name: device-ms
+    ports:
+      - "8080:8080"
+    depends_on:
+      device-db-ms:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: device-ms
+      SPRING_DATASOURCE_URL: jdbc:mysql://device-db-ms:3306/device_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - abimael-network
+
+networks:
+  abimael-network:
+    driver: "bridge"
