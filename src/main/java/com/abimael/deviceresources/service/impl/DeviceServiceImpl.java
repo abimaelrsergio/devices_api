@@ -24,6 +24,13 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
+/**
+ * Implementation of {@link IDeviceService} for managing device operations.
+ * Provides methods to create, fetch, update, and delete devices using the repository layer.
+ * Maps entities to DTOs and applies validation and business rules.
+ * Wraps database exceptions into custom exceptions for consistent error handling.
+ * Follows service layer best practices within a Spring Boot application.
+ */
 @Service
 @AllArgsConstructor
 public class DeviceServiceImpl implements IDeviceService {
