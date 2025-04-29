@@ -3,14 +3,16 @@ package com.abimael.deviceresources.service.impl;
 import com.abimael.deviceresources.dto.DeviceDto;
 import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.entity.Device;
-import com.abimael.deviceresources.exception.*;
+import com.abimael.deviceresources.exception.DatabaseException;
+import com.abimael.deviceresources.exception.ResourceNotFoundException;
+import com.abimael.deviceresources.exception.DeviceInUseException;
 import com.abimael.deviceresources.mapper.DeviceMapper;
 import com.abimael.deviceresources.repository.DeviceRepository;
 import com.abimael.deviceresources.service.IDeviceService;
 import com.abimael.deviceresources.util.State;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.*;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
