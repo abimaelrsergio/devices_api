@@ -1,7 +1,6 @@
 package com.abimael.deviceresources.service.impl;
 
 import com.abimael.deviceresources.dto.DeviceDto;
-import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.entity.Device;
 import com.abimael.deviceresources.exception.DatabaseException;
 import com.abimael.deviceresources.exception.ResourceNotFoundException;
@@ -17,8 +16,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -62,9 +59,8 @@ public class DeviceServiceImpl implements IDeviceService {
      */
     @Override
     public List<DeviceDto> fetchDevices(String brand, String state) {
-        return Optional.ofNullable(findByFiltersBrandAndState(brand, state))
-                .orElseGet(Collections::emptyList)
-                .stream()
+        List<Device> devices = findByFiltersBrandAndState(brand, state);
+        return devices.stream()
                 .map(DeviceMapper::mapToDeviceDto)
                 .collect(Collectors.toList());
     }
@@ -112,17 +108,17 @@ public class DeviceServiceImpl implements IDeviceService {
      * @throws DeviceInUseException if the device is currently in use
      */
     @Override
-    public DeviceDto updateDevice(UpdateDeviceDto deviceDto) {
-        checkArgument(isNotEmpty(deviceDto.getId()), "Id cannot be null");
-        Device device = deviceRepository.findById(deviceDto.getId()).orElseThrow(
-                () -> new ResourceNotFoundException("Device", "id", deviceDto.getId())
+    public DeviceDto updateDevice(DeviceDto deviceDto, Long id) {
+        checkArgument(isNotEmpty(id), "Id cannot be null");
+        Device device = deviceRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Device", "id", id)
         );
         if (StringUtils.isNoneBlank(deviceDto.getName()) && !device.getName().equals(deviceDto.getName())) {
-            checkNotInUse(device.getState(), deviceDto.getId());
+            checkNotInUse(device.getState(), id);
             device.setName(deviceDto.getName());
         }
         if (StringUtils.isNoneBlank(deviceDto.getBrand()) && !device.getBrand().equals(deviceDto.getBrand())) {
-            checkNotInUse(device.getState(), deviceDto.getId());
+            checkNotInUse(device.getState(), id);
             device.setBrand(deviceDto.getBrand());
         }
         if (deviceDto.getState() != null && !device.getState().equals(deviceDto.getState())) {

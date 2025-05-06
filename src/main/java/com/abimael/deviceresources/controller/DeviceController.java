@@ -4,7 +4,6 @@ import com.abimael.deviceresources.constants.DevicesConstants;
 import com.abimael.deviceresources.dto.ErrorDto;
 import com.abimael.deviceresources.dto.ResponseDto;
 import com.abimael.deviceresources.dto.DeviceDto;
-import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.exception.ResourceNotFoundException;
 import com.abimael.deviceresources.exception.DeviceInUseException;
 import com.abimael.deviceresources.service.IDeviceService;
@@ -225,10 +224,10 @@ public class DeviceController {
             )
     }
     )
-    @PutMapping("/devices")
-    public ResponseEntity<ResponseDto> updateDevice(@Valid @RequestBody UpdateDeviceDto updateDeviceDto){
+    @PutMapping("/devices/{id}")
+    public ResponseEntity<ResponseDto> updateDevice(@Valid @RequestBody DeviceDto updateDeviceDto, @PathVariable(name = "id") Long id){
         logger.debug("DeviceController.updateDevice: {}", updateDeviceDto);
-        DeviceDto deviceUpdated = iDeviceService.updateDevice(updateDeviceDto);
+        DeviceDto deviceUpdated = iDeviceService.updateDevice(updateDeviceDto, id);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(deviceUpdated.getId()).toUri();

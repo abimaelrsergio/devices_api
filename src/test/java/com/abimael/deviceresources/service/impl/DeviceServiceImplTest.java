@@ -1,7 +1,6 @@
 package com.abimael.deviceresources.service.impl;
 
 import com.abimael.deviceresources.dto.DeviceDto;
-import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.entity.Device;
 import com.abimael.deviceresources.exception.ResourceNotFoundException;
 import com.abimael.deviceresources.exception.DeviceInUseException;
@@ -186,7 +185,7 @@ class DeviceServiceImplTest {
         deviceExpected.setBrand("NewBrand");
         deviceExpected.setState(State.IN_USE);
 
-        UpdateDeviceDto updateDto = new UpdateDeviceDto();
+        DeviceDto updateDto = new DeviceDto();
         updateDto.setId(1L);
         updateDto.setName("NewName");
         updateDto.setBrand("NewBrand");
@@ -194,7 +193,7 @@ class DeviceServiceImplTest {
 
         when(deviceRepository.findById(1L)).thenReturn(Optional.of(device));
         when(deviceRepository.save(any(Device.class))).thenReturn(deviceExpected);
-        DeviceDto updatedDevice = deviceService.updateDevice(updateDto);
+        DeviceDto updatedDevice = deviceService.updateDevice(updateDto, 1L);
         assertNotNull(updatedDevice);
         assertEquals(deviceExpected.getName(), updatedDevice.getName(), "Device name does not match");
         assertEquals(deviceExpected.getBrand(), updatedDevice.getBrand(), "Device brand does not match");
@@ -208,10 +207,8 @@ class DeviceServiceImplTest {
      */
     @Test
     void shouldThrowExceptionWhenUpdateNonExistingDevice() {
-        UpdateDeviceDto updateDto = new UpdateDeviceDto();
-        updateDto.setId(1L);
         when(deviceRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> deviceService.updateDevice(updateDto));
+        assertThrows(ResourceNotFoundException.class, () -> deviceService.updateDevice(new DeviceDto(), 1L));
     }
 
     /**

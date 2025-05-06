@@ -1,7 +1,6 @@
 package com.abimael.deviceresources.controller;
 
 import com.abimael.deviceresources.dto.DeviceDto;
-import com.abimael.deviceresources.dto.UpdateDeviceDto;
 import com.abimael.deviceresources.util.State;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -314,7 +313,7 @@ public class DeviceControllerTest {
      * the update operation returns a status code 200 indicating success.
      */
     @Test
-    @DisplayName("PUT /api/devices - Partially update an existing device")
+    @DisplayName("PUT /api/devices/{id} - Partially update an existing device")
     void testUpdateDevice() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("Test Device");
@@ -335,15 +334,13 @@ public class DeviceControllerTest {
         String[] parts = location.split("/");
         String id = parts[parts.length - 1];
 
-        UpdateDeviceDto updateDeviceDto = new UpdateDeviceDto();
-        updateDeviceDto.setId(Long.parseLong(id));
-        updateDeviceDto.setState(State.INACTIVE);
+        deviceDto.setState(State.INACTIVE);
 
         given()
                 .contentType(ContentType.JSON)
-                .body(updateDeviceDto)
+                .body(deviceDto)
         .when()
-                .put("/api/devices")
+                .put("/api/devices/{id}", id)
         .then()
                 .statusCode(200);
     }
@@ -353,7 +350,7 @@ public class DeviceControllerTest {
      * the update operation returns a status code 200 indicating success.
      */
     @Test
-    @DisplayName("PUT /api/devices - Fully update an existing device")
+    @DisplayName("PUT /api/devices{id} - Fully update an existing device")
     void testFullyUpdateDevice() {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setName("DEVICE TO BE FULLY UPDATED");
@@ -374,17 +371,15 @@ public class DeviceControllerTest {
         String[] parts = location.split("/");
         String id = parts[parts.length - 1];
 
-        UpdateDeviceDto updateDeviceDto = new UpdateDeviceDto();
-        updateDeviceDto.setId(Long.parseLong(id));
         deviceDto.setName("UPDATED Device");
         deviceDto.setBrand("UPDATEDIphone");
         deviceDto.setState(State.IN_USE);
 
         given()
                 .contentType(ContentType.JSON)
-                .body(updateDeviceDto)
+                .body(deviceDto)
                 .when()
-                .put("/api/devices")
+                .put("/api/devices/{id}", id)
                 .then()
                 .statusCode(200);
     }
